@@ -14,6 +14,8 @@
 #define OP_SUBTRACT 1
 #define OP_MULTIPLY 2
 #define OP_DIVIDE 3
+#define HISTORY 4
+#define FINISH 5
 
 #define MATH_SUCESS 0
 #define MATH_ERROR 1
@@ -26,21 +28,21 @@
 struct sockaddr_in local;
 struct sockaddr_in remote;
 
-typedef struct Request{
+struct Request{
 	char head[4];
-	double numeros[20];
+	double numbers[20];
 };
 
-typedef struct Answer{
+struct Answer{
 	char head[4];
 	double total;
 };
 
-typedef struct  Cell
+struct  Cell
 {
 	struct Request req;
 	struct Answer  asn;
-	struct cell *pcell;
+	struct Cell *next;
 };
 
 

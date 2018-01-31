@@ -19,39 +19,39 @@ void answer_head(struct Answer *answer, int length, int id, int op, double total
 }
 
 void operation(struct Request *request, struct Answer *answer){
-    int id = request->head[ID], zero = FALSE, len = request->head[LENGTH]/8 /*qnte de numeros*/, i;
-    double total = request->numeros[0];
+    int id = request->head[ID], zero = FALSE, len = request->head[LENGTH]/8 /*qnte de numbers*/, i;
+    double total = request->numbers[0];
 	if(len != 1){
     	switch(request->head[OPERATION]){
 		    case OP_ADD: /*Operação de adição*/
 		        for(i=1; i<len; i++){
-		                total += request->numeros[i];
+		                total += request->numbers[i];
 		            }
                 answer_head(answer, request->head[LENGTH], id, MATH_SUCESS, total);
                 break;
 
 		    case OP_SUBTRACT: /*Operação de subtração*/
 		        for(i=1; i<len; i++){
-		                total -= request->numeros[i];
+		                total -= request->numbers[i];
                     }
                 answer_head(answer, request->head[LENGTH], id, MATH_SUCESS, total);
                 break;
 
 		    case OP_MULTIPLY: /*Operação de multiplicação*/
 		        for(i=1; i<len; i++){
-		                total *= request->numeros[i];
+		                total *= request->numbers[i];
 		            }
 		            answer_head(answer, request->head[LENGTH], id, MATH_SUCESS, total);
 		            break;
 
 		    case OP_DIVIDE: /*Operação de divisão*/
 				for(i=1; i<len; i++){
-					if(request->numeros[i] == 0){ //caso tenha zero
+					if(request->numbers[i] == 0){ //caso tenha zero
 						zero = TRUE;
 						break;
 					}
 					else{
-		                total /= request->numeros[i];
+		                total /= request->numbers[i];
 					}
 				}
 
@@ -67,7 +67,7 @@ void operation(struct Request *request, struct Answer *answer){
 
 void reset_memory(struct Request *request, struct Answer *answer){
    memset(request->head,0,sizeof(request->head));
-   memset(request->numeros,0,sizeof(request->numeros));
+   memset(request->numbers,0,sizeof(request->numbers));
    memset(answer->head,0,sizeof(answer->head));
    answer->total = 0;
 }
@@ -85,15 +85,15 @@ void show_data(struct Request *request, struct Answer *answer){
         printf("Números: ");
         int len = request->head[LENGTH]/8;
         for(int j=0; j<len; j++)
-            printf("%.2lf ", request->numeros[j]);
+            printf("%.2lf ", request->numbers[j]);
         printf("\nResposta: %.2lf \n\n", answer->total);
     }
     else if(answer->head[OPERATION] == MATH_ERROR) printf("Impossibilidade Matemática\n\n");
     else printf("Erro de Sintaxe\n\n");
     printf("Aguardando novo pacote...\n");
 }
-/*
-int config_socket(struct sockaddr_in *local, struct sockaddr_in *remote, int sockfd, int port, char *ip){
+
+void config_socket(struct sockaddr_in *local, struct sockaddr_in *remote, int sockfd, int port, char *ip){
     socklen_t len = sizeof(remote);
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -119,8 +119,8 @@ int config_socket(struct sockaddr_in *local, struct sockaddr_in *remote, int soc
         exit(1);
     }
     printf("Requisição conectado! Aguardando pacote...\n");
-    return client;
-}*/
+
+}
 
 
 
@@ -169,11 +169,12 @@ void show_package_ans(struct Answer *answ)
 void insert_array(struct Request *req, int num)
 {
     double valor;
-    for( int i = 0; i<num ; i++)
+    int i;
+    for(i = 0; i<num ; i++)
     {
         printf("Digite o %d° numero:  ",i+1);
         scanf("%lf",&valor);
-        req->numeros[i] = valor;
+        req->numbers[i] = valor;
     }
 }
 
@@ -187,25 +188,26 @@ void setup_socket(struct sockaddr_in *server, int porta,char *ip)
 
 void show_history(struct Cell *cl)
 {
+    int i;
     do
     {
-        for(int i = 0; i< cl->req.head[LENGTH]/SIZE_DOUBLE - 1 ; i++)
+        for(i = 0; i< cl->req.head[LENGTH]/SIZE_DOUBLE - 1 ; i++)
         {
             if(cl->req.head[OPERATION] == OP_ADD)
             {
-                printf("%.2l+",cl->req.numeros[i]);
+                printf("%.2lf+",cl->req.numbers[i]);
             }
             else if(cl->req.head[OPERATION] == OP_SUBTRACT)
             {
-                printf("%.2l-",cl->req.numeros[i]);
+                printf("%.2lf-",cl->req.numbers[i]);
             }
             else if(cl->req.head[OPERATION] == OP_MULTIPLY)
             {
-                printf("%.2lx",cl->req.numeros[i]);
+                printf("%.2lfx",cl->req.numbers[i]);
             }
             else if(cl->req.head[OPERATION] == OP_DIVIDE)
             {
-                printf("%.2l/",cl->req.numeros[i]);
+                printf("%.2lf/",cl->req.numbers[i]);
             }
         }
         if(cl->asn.head[OPERATION] == MATH_SUCESS)
@@ -213,7 +215,7 @@ void show_history(struct Cell *cl)
         else if(cl->asn.head[OPERATION] == MATH_ERROR || cl->asn.head[OPERATION] == SINTAX_ERROR)
             printf(" = Error na Resposta.\n");
 
-        cl = cl->pcell;
+        cl = cl->next;
 
 
     }while(cl != NULL);
@@ -225,12 +227,12 @@ int menu()
 {
     int op;
     printf("(------------CALCULADORA--------------)\n");
-    printf("1 - Somar \n");
-    printf("2 - Subtrair  \n");
-    printf("3 - Multiplicar \n");
-    printf("4 - Dividir \n");
-    printf("5 - Historico\n");
-    printf("0 - Sair da aplicação\n");
+    printf("0 - Somar \n");
+    printf("1 - Subtrair  \n");
+    printf("2 - Multiplicar \n");
+    printf("3 - Dividir \n");
+    printf("4 - Historico\n");
+    printf("5 - Sair da aplicação\n");
     printf("Selecione a operação: ");
     scanf("%d", &op);
     return op;
