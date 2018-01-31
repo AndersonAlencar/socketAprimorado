@@ -9,6 +9,7 @@
 #include <endian.h>
 #include "protocol.h"
 
+
 void answer_head(struct Answer *answer, int length, int id, int op, double total){
     answer->head[TYPE] = TYPE_ANWSER;
     answer->head[LENGTH] = length*sizeof(double); /*Tamanho do pacote*/
@@ -91,7 +92,7 @@ void show_data(struct Request *request, struct Answer *answer){
     else printf("Erro de Sintaxe\n\n");
     printf("Aguardando novo pacote...\n");
 }
-
+/*
 int config_socket(struct sockaddr_in *local, struct sockaddr_in *remote, int sockfd, int port, char *ip){
     socklen_t len = sizeof(remote);
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -119,7 +120,7 @@ int config_socket(struct sockaddr_in *local, struct sockaddr_in *remote, int soc
     }
     printf("Requisição conectado! Aguardando pacote...\n");
     return client;
-}
+}*/
 
 
 
@@ -135,34 +136,30 @@ void generate_head(struct Request *pc, int length,int id, int Op)
 
 void save_package_req(struct Request *rq, struct Cell *cl)
 {
-    cl->req = rq;
+    cl->req = *rq;
 }
 
 void save_package_ans(struct Answer *answ, struct Cell *cl)
 {
     if(answ->head[OPERATION] == MATH_SUCESS)
     {
-        cl->asn = answ;
-    }
-    else
-    {
-        cl->asn = NULL;
+        cl->asn = *answ;
     }
 
 }
 
 void show_package_ans(struct Answer *answ)
 {
-    if( PacResp->head[3] == MATH_SUCESS)
+    if( answ->head[3] == MATH_SUCESS)
     {
         printf("\nResposta: %.2lf\n\n",answ->total);
 
     }
-    else if(PacResp->head[3] == MATH_ERROR)
+    else if(answ->head[3] == MATH_ERROR)
     {
         printf("\nResposta: Impossibilidade Matemática!\n");
     }
-    else if (PacResp->head[3] == SINTAX_ERROR)
+    else if (answ->head[3] == SINTAX_ERROR)
     {
         printf("\nResposta: Error de Sintaxe!\n");
     }
@@ -184,7 +181,7 @@ void setup_socket(struct sockaddr_in *server, int porta,char *ip)
 {
     server->sin_family = AF_INET;
     server->sin_port = htons(porta);
-    inet_pton(AF_INET, ip, &remoto.sin_addr);
+    inet_pton(AF_INET, ip, &remote.sin_addr);
     memset(server->sin_zero,0x0,8);
 }
 
@@ -216,7 +213,7 @@ void show_history(struct Cell *cl)
         else if(cl->asn.head[OPERATION] == MATH_ERROR || cl->asn.head[OPERATION] == SINTAX_ERROR)
             printf(" = Error na Resposta.\n");
 
-        *cl = cl->pcell;
+        cl = cl->pcell;
 
 
     }while(cl != NULL);

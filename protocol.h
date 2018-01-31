@@ -38,8 +38,8 @@ typedef struct Answer{
 
 typedef struct  Cell
 {
-	struct Request *req;
-	struct Answer  *asn;
+	struct Request req;
+	struct Answer  asn;
 	struct cell *pcell;
 };
 
@@ -56,9 +56,9 @@ void reset_memory(struct Request *request, struct Answer *answer);
 
 void show_data(struct Request *request, struct Answer *answer);
 
-void generate_head(struct pacote *pc, int length,int id, int Op);
+void generate_head(struct Request *pc, int length,int id, int Op);
 
-void save_package_req(struct Answer *pc, struct cell *cl);
+void save_package_req(struct Request *rq, struct Cell *cl);
 
 void save_package_ans(struct Answer *answ, struct Cell *cl);
 
