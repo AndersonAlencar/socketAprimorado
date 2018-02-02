@@ -191,6 +191,7 @@ void show_history(struct Cell *cl)
     int i;
     do
     {
+        printf("\nid:%d\n",cl->req.head[ID]);
         for(i = 0; i< cl->req.head[LENGTH]/SIZE_DOUBLE - 1 ; i++)
         {
             if(cl->req.head[OPERATION] == OP_ADD)
@@ -211,9 +212,17 @@ void show_history(struct Cell *cl)
             }
         }
         if(cl->asn.head[OPERATION] == MATH_SUCESS)
+        {
+            printf("%.2lf ",cl->req.numbers[i]);
             printf(" = %.2lf\n",cl->asn.total);
+        }
+
         else if(cl->asn.head[OPERATION] == MATH_ERROR || cl->asn.head[OPERATION] == SINTAX_ERROR)
+        {
+            printf("%.2lf ",cl->req.numbers[i]);
             printf(" = Error na Resposta.\n");
+        }
+
 
         cl = cl->next;
 

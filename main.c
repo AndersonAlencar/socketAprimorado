@@ -26,13 +26,15 @@ int main()
     struct Answer *pac_resp;
 
     socklen_t len = sizeof(remote);
-    strcpy(ip, "192.168.1.120"); // 192.168.1.120-> lucas
+
+    printf("Digite o Ip desejado para conexao: ");
+    fgets(ip,14,stdin);// 192.168.1.120-> lucas
 
     if(sockfd == -1){
         perror("socket ");
         exit(1);
     }else{
-        printf("Socket criado!\n");
+        printf("\nSocket criado!\n");
     }
 
     setup_socket(&remote,PORTA,ip);
@@ -55,6 +57,8 @@ int main()
 
     while(TRUE)
     {
+        //printf("\e[H\e[2J");
+        //printf("\33[H\33[2J");  prints que limpam o console
         op = menu();
         switch(op)
         {
@@ -70,9 +74,13 @@ int main()
                     pont_ini->next = NULL;
                     pont_fim = pont_ini;
                 }
-                pont_fim->next = (struct Cell*)malloc(sizeof(struct Cell));
-                pont_fim = pont_fim->next;
-                pont_fim->next = NULL;
+                else
+                {
+                    pont_fim->next = (struct Cell*)malloc(sizeof(struct Cell));
+                    pont_fim = pont_fim->next;
+                    pont_fim->next = NULL;
+                }
+
 
 
 
@@ -86,7 +94,7 @@ int main()
                 id++;
                 generate_head(pac,num,id,op);
                 save_package_req(pac,pont_fim);
-                env = send(sockfd,pac, sizeof(struct Request), 0);
+                env = send(sockfd,htole64(pac), sizeof(struct Request), 0);
                 if(env == -1){
                 perror("\nError no envio do pacote: ");
                 return EXIT_FAILURE;
@@ -100,13 +108,17 @@ int main()
                 show_package_ans(pac_resp);
                 save_package_ans(pac_resp,pont_fim);
 
+                printf("\nid:%d\n",pont_ini->req.head[ID]);
+
                 free(pac); pac = NULL;
                 free(pac_resp); pac_resp = NULL;
                 break;
 
             case HISTORY:
                 printf("\n-----------------------HISTORY-----------------------\n\n");
+                printf("\nid:%d\n",pont_ini->req.head[ID]);
                 show_history(pont_ini);
+                break;
 
             case FINISH:
                 printf("Fim da aplicacao\n");
